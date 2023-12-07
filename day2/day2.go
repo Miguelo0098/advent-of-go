@@ -64,6 +64,20 @@ func getValidGameValue(gameRecord string) int  {
 	return gameId 
 }
 
+func getGamePower(gameRecord string) int {
+	sets, _ := parseGame(gameRecord)
+	minSet := map[string]int{"green": 1, "blue": 1, "red": 1} 
+	
+	for i := 0; i < len(sets); i++ {
+		set := parseSet(sets[i])
+		minSet["green"] = max(minSet["green"], set["green"])
+		minSet["red"] = max(minSet["red"], set["red"])
+		minSet["blue"] = max(minSet["blue"], set["blue"])
+	}
+	
+	return minSet["green"] * minSet["red"] * minSet["blue"] 
+}
+
 func getStringsFromFile(fileName string) []string {
 	dat, err := os.ReadFile(fileName)
 	check(err)
@@ -79,13 +93,18 @@ func main() {
 	sum := 0
 
 	fileName := flag.String("file", "data/data", "file name with the data to consume")
+	power := flag.Bool("power", false, "calculate games power instead")
 
 	flag.Parse()
 
-	stringArray := getStringsFromFile(*fileName)
+	gameRecords := getStringsFromFile(*fileName)
 
-	for i := 0; i < len(stringArray); i++ {
-		sum += getValidGameValue(stringArray[i])
+	for i := 0; i < len(gameRecords); i++ {
+		if *power {
+		sum += getGamePower(gameRecords[i])	
+		}else{
+			sum += getValidGameValue(gameRecords[i])
+		}
 	}
 
 	fmt.Println(sum)
