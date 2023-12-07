@@ -3,16 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
-)
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
+	"github.com/miguelo0098/advent-of-go/utils"
+)
 
 func parseNumber(str string) int {
 
@@ -65,17 +60,6 @@ func getNumberSum(str string, verbose bool) int {
 	return res
 }
 
-func getStringsFromFile(fileName string) []string {
-	dat, err := os.ReadFile(fileName)
-	check(err)
-
-	re := regexp.MustCompile(`.*\n`)
-
-	res := re.FindAllString(string(dat), -1)
-
-	return res
-}
-
 func main() {
 	sum := 0
 
@@ -84,7 +68,7 @@ func main() {
 
 	flag.Parse()
 
-	stringArray := getStringsFromFile(*fileName)
+	stringArray := utils.GetStringsFromFile(*fileName)
 
 	for i := 0; i < len(stringArray); i++ {
 		sum += getNumberSum(stringArray[i], *verbose)

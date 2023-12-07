@@ -3,20 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
+
+	"github.com/miguelo0098/advent-of-go/utils"
 )
 
 const MAX_RED = 12
 const MAX_GREEN = 13
 const MAX_BLUE = 14
-
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
 
 func parseSet(set string) map[string]int {
 	balls := regexp.MustCompile(`\,`).Split(set, 3)
@@ -78,17 +73,6 @@ func getGamePower(gameRecord string) int {
 	return minSet["green"] * minSet["red"] * minSet["blue"] 
 }
 
-func getStringsFromFile(fileName string) []string {
-	dat, err := os.ReadFile(fileName)
-	check(err)
-
-	re := regexp.MustCompile(`.*\n`)
-
-	res := re.FindAllString(string(dat), -1)
-
-	return res
-}
-
 func main() {
 	sum := 0
 
@@ -97,7 +81,7 @@ func main() {
 
 	flag.Parse()
 
-	gameRecords := getStringsFromFile(*fileName)
+	gameRecords := utils.GetStringsFromFile(*fileName)
 
 	for i := 0; i < len(gameRecords); i++ {
 		if *power {
