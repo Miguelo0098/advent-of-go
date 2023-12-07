@@ -1,12 +1,24 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"os"
 	"regexp"
 	"strconv"
 )
 
-func getSetMap(set string) map[string]int {
+const MAX_RED = 12
+const MAX_GREEN = 13
+const MAX_BLUE = 14
+
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+
+func parseSet(set string) map[string]int {
 	balls := regexp.MustCompile(`\,`).Split(set, 3)
 
 	setMap := make(map[string]int)
@@ -23,20 +35,58 @@ func getSetMap(set string) map[string]int {
 	return setMap
 }
 
-func main() {
+func isValidSet(set map[string]int) bool  {
+	return set["green"] <= MAX_GREEN && set["red"] <= MAX_RED && set["blue"] <= MAX_BLUE
+}
 
-	gameRecord := "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"
-
+func parseGame(gameRecord string) (sets []string, gameId int) {
 	splittedStr := regexp.MustCompile(`\:`).Split(gameRecord, 2)
+	
+	gameIdString := regexp.MustCompile(`\d+`).FindString(splittedStr[0])
+	value, _ :=strconv.ParseInt(gameIdString, 0, 64)
 
-	gameId := splittedStr[0]
-	setData := splittedStr[1]
+	sets = regexp.MustCompile(`\;`).Split(splittedStr[1], 100)
+	gameId = int(value)
 
-	setsArray := regexp.MustCompile(`\;`).Split(setData, 100)
+	return 	
 
-	for i := 0; i < len(setsArray); i++ {
-		fmt.Println(getSetMap(setsArray[i]))
+}
+
+func getValidGameValue(gameRecord string) int  {
+	sets, gameId := parseGame(gameRecord)
+	
+	for i := 0; i < len(sets); i++ {
+		if !isValidSet(parseSet(sets[i])) {
+			return 0	
+		}
+	}
+	
+	return gameId 
+}
+
+func getStringsFromFile(fileName string) []string {
+	dat, err := os.ReadFile(fileName)
+	check(err)
+
+	re := regexp.MustCompile(`.*\n`)
+
+	res := re.FindAllString(string(dat), -1)
+
+	return res
+}
+
+func main() {
+	sum := 0
+
+	fileName := flag.String("file", "data/data", "file name with the data to consume")
+
+	flag.Parse()
+
+	stringArray := getStringsFromFile(*fileName)
+
+	for i := 0; i < len(stringArray); i++ {
+		sum += getValidGameValue(stringArray[i])
 	}
 
-	fmt.Println(gameId)
+	fmt.Println(sum)
 }
